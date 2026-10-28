@@ -1,0 +1,135 @@
+.vzp-wc-admin {
+	box-sizing: border-box;
+	max-width: 960px;
+	margin: 10px 0 0;
+}
+.vzp-wc-admin *,
+.vzp-wc-admin *::before,
+.vzp-wc-admin *::after {
+	box-sizing: border-box;
+}
+.vzp-wc-hero {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px 24px;
+	margin-bottom: 16px;
+	padding: 20px 24px;
+	border-radius: 12px;
+	background: #1d2327;
+	color: #fff;
+}
+.vzp-wc-hero h2 {
+	margin: 0 0 4px;
+	padding: 0;
+	color: #fff;
+	font-size: 1.6em;
+}
+.vzp-wc-hero p {
+	margin: 0;
+	color: #c3c4c7;
+}
+.vzp-wc-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.vzp-wc-badges li {
+	margin: 0;
+	padding: 5px 12px;
+	border-radius: 999px;
+	background: #2c3338;
+	color: #dcdcde;
+	font-size: 12px;
+	white-space: nowrap;
+}
+.vzp-wc-badges li.is-ok {
+	background: #0a5c2d;
+	color: #d6f5e1;
+}
+.vzp-wc-badges li.is-warn {
+	background: #7a4b00;
+	color: #ffe9bf;
+}
+.vzp-wc-card {
+	margin-bottom: 16px;
+	padding: 20px 24px;
+	border: 1px solid #dcdcde;
+	border-radius: 12px;
+	background: #fff;
+}
+.vzp-wc-card h3 {
+	margin: 0 0 8px;
+	font-size: 1.1em;
+}
+.vzp-wc-card > p {
+	margin: 0 0 12px;
+	color: #50575e;
+}
+.vzp-wc-copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 8px;
+}
+.vzp-wc-copy code {
+	flex: 1 1 280px;
+	min-width: 0;
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: 8px;
+	background: #f6f7f7;
+	font-size: 12.5px;
+	line-height: 1.5;
+	word-break: break-all;
+	user-select: all;
+}
+.vzp-wc-copy .button {
+	flex: 0 0 auto;
+}
+.vzp-wc-alert {
+	margin: 12px 0 0;
+	padding: 10px 12px;
+	border-left: 4px solid #dba617;
+	border-radius: 4px;
+	background: #fcf9e8;
+}
+.vzp-wc-card .form-table {
+	margin-top: 0;
+}
+.vzp-wc-card .form-table th {
+	width: 220px;
+	padding-left: 0;
+}
+.vzp-wc-card .form-table input[type="text"],
+.vzp-wc-card .form-table input[type="password"],
+.vzp-wc-card .form-table textarea {
+	width: 100%;
+	max-width: 480px;
+}
+.vzp-wc-card .form-table .select2-container {
+	max-width: 100%;
+}
+@media (max-width: 782px) {
+	.vzp-wc-hero,
+	.vzp-wc-card {
+		padding: 16px;
+		border-radius: 10px;
+	}
+	.vzp-wc-card .form-table th {
+		width: auto;
+		padding-bottom: 0;
+	}
+	.vzp-wc-card .form-table input[type="text"],
+	.vzp-wc-card .form-table input[type="password"],
+	.vzp-wc-card .form-table textarea {
+		max-width: 100%;
+	}
+	.vzp-wc-badges li {
+		white-space: normal;
+	}
+}

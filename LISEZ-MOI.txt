@@ -1,0 +1,123 @@
+PASSERELLE VERZAPAY POUR WOOCOMMERCE  -  Version 2.0.0
+=========================================================
+
+Ce plugin ajoute Verzapay (API v1) comme moyen de paiement dans WooCommerce.
+Il fonctionne sur n'importe quelle boutique WooCommerce.
+
+
+1. CONTENU DU ZIP
+-----------------
+verzapay-woocommerce/
+  verzapay-woocommerce.php        fichier principal du plugin
+  includes/class-gateway.php      passerelle : paiement, webhook, réglages
+  includes/helpers.php            pays, numéros de téléphone, sécurité des liens
+  includes/countries.php          liste des pays Verzapay (à mettre à jour ici)
+  assets/css, assets/js           styles et scripts (page de commande, administration)
+  LISEZ-MOI.txt                   ce document
+
+
+2. INSTALLATION
+---------------
+1. Dans WordPress : Extensions > Ajouter > Téléverser une extension.
+2. Choisissez le fichier verzapay-woocommerce.zip, puis "Installer maintenant".
+3. Cliquez sur "Activer".
+   (Autre méthode : décompressez le zip et envoyez le dossier verzapay-woocommerce
+   dans wp-content/plugins/, puis activez le plugin.)
+
+Prérequis : WordPress 6.0+, WooCommerce 7.0+, PHP 7.4+, site en https.
+Si vous aviez déjà une ancienne version de ce plugin, désactivez-la et supprimez-la
+avant d'installer celle-ci. Vos réglages (clé, jeton) sont conservés.
+
+
+3. CONFIGURATION
+----------------
+Allez dans WooCommerce > Réglages > Paiements > Verzapay.
+
+- Activer             : cochez pour proposer Verzapay à la commande.
+- Titre / Description : textes affichés au client.
+- Description envoyée à Verzapay : "Service rendu" par défaut. C'est le texte transmis
+  à l'agrégateur de paiement. Le nom de la commande et des produits n'est jamais envoyé.
+- Clé secrète         : générée dans l'espace Développeur de Verzapay (vpz_sk_...).
+  Elle n'est affichée qu'une seule fois chez Verzapay. Ne la partagez jamais.
+  Option : la placer dans wp-config.php
+      define( 'VERZAPAY_SECRET_KEY', 'vpz_sk_...' );
+- Jeton secret du webhook : généré automatiquement. Il fait partie de l'URL du webhook.
+- Pays acceptés       :
+      * Tous les pays pris en charge par Verzapay (par défaut)
+      * Pays occidentaux uniquement (aucun pays africain)
+      * Sélection personnalisée
+- Liste des pays de la boutique : limite les pays proposés à la commande aux pays acceptés.
+- Domaines de paiement autorisés : le client n'est redirigé que vers ces domaines
+  (https obligatoire). Par défaut : verzapay.com, joonapay.com.
+
+
+4. WEBHOOK (obligatoire)
+------------------------
+En haut de la page de réglages, copiez l'URL du webhook avec le bouton "Copier".
+Elle ressemble à :
+    https://votre-site.com/?wc-api=verzapay&k=VOTRE_JETON
+Collez-la dans l'espace Développeur de Verzapay, champ webhook, puis enregistrez.
+Sans webhook, les commandes restent "En attente" : Verzapay ne propose pas d'URL de retour.
+
+Sécurité du webhook :
+- le jeton secret est vérifié (comparaison à temps constant) ;
+- le plugin interroge ensuite l'API Verzapay pour confirmer le statut, le montant,
+  la devise et la référence avant de valider la commande ;
+- une notification reçue deux fois n'est traitée qu'une fois.
+Si vous changez le jeton, mettez aussi à jour l'URL chez Verzapay.
+
+
+5. PAYS ET TÉLÉPHONE
+--------------------
+- Le numéro de téléphone est obligatoire (Verzapay en déduit le pays et la devise).
+- Il est converti au format international (+33612345678). Son indicatif doit correspondre
+  au pays de facturation, sinon la commande est refusée avec un message clair.
+- La liste des pays est celle de la documentation Verzapay, synchronisée le 28/10/2026 14:52:46.
+  Verzapay ne fournit pas de point d'accès pour la récupérer automatiquement : pour la mettre
+  à jour, modifiez includes/countries.php (un pays par ligne : 'FR' => '33') puis la date
+  VZP_WC_SYNC dans verzapay-woocommerce.php.
+- Cas particuliers : Etats-Unis et Canada partagent l'indicatif +1 ; la Jamaique (+1876) et la
+  République dominicaine (+1809) ont leur propre indicatif.
+
+
+6. DEROULEMENT D'UNE COMMANDE
+-----------------------------
+1. Le client remplit la commande (téléphone obligatoire) et choisit Verzapay.
+2. Le plugin crée le paiement chez Verzapay ; la commande passe en "En attente".
+3. Le client est redirigé vers la page de paiement sécurisée.
+4. Verzapay envoie le webhook ; le plugin vérifie, puis passe la commande en payée.
+5. Si le paiement échoue, la commande passe en "Echouée".
+Le client peut reprendre un paiement en attente depuis Mon compte > Commandes (bouton
+"Payer maintenant").
+
+
+7. TEST
+-------
+1. Faites une petite commande depuis un compte client.
+2. Vérifiez qu'elle passe en "En attente" et que vous arrivez sur la page Verzapay.
+3. Payez, puis vérifiez que la commande passe en "Traitement en cours" ou "Terminée".
+Les journaux sont dans WooCommerce > Statut > Journaux (source : verzapay).
+
+
+8. DEPANNAGE
+------------
+Message "Le paiement est momentanément indisponible" : ouvrez le journal "verzapay".
+  - HTTP 401 : clé secrète invalide ou absente.
+  - HTTP 403 : KYC non approuvé ou permission insuffisante chez Verzapay.
+  - HTTP 400 : paramètres invalides (téléphone, montant).
+  - HTTP 429 : trop de requêtes, réessayez plus tard.
+  - HTTP 503 : taux de change indisponible.
+  - "URL de paiement refusée" : ajoutez le domaine affiché dans le journal à
+    "Domaines de paiement autorisés", uniquement si vous le reconnaissez.
+La commande reste "En attente" après paiement : le webhook n'arrive pas ou le jeton
+  est différent. Comparez l'URL collée chez Verzapay avec celle affichée dans les réglages.
+Aucun moyen de paiement à la commande : clé secrète vide, plugin non activé, ou pays de
+  facturation non accepté.
+
+
+9. LIMITES
+----------
+- Compatible avec la page de commande classique (shortcode), pas avec le bloc "Commande".
+- Les prix sont convertis par Verzapay dans la devise du pays du client.
+  Limites Verzapay : minimum 100 XOF, maximum 50 000 000 XOF (équivalent).
+- Les décaissements (payouts) ne sont pas gérés par ce plugin.

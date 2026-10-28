@@ -1,0 +1,43 @@
+.vzp-wc-box {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 4px 0;
+}
+.vzp-wc-box .vzp-wc-desc p {
+	margin: 0 0 10px;
+}
+.vzp-wc-points {
+	list-style: none;
+	margin: 0;
+	padding: 12px 14px;
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.04);
+	font-size: 0.9em;
+	line-height: 1.5;
+}
+.vzp-wc-points li {
+	position: relative;
+	margin: 0 0 6px;
+	padding-left: 22px;
+}
+.vzp-wc-points li:last-child {
+	margin-bottom: 0;
+}
+.vzp-wc-points li::before {
+	content: "";
+	position: absolute;
+	left: 2px;
+	top: 0.45em;
+	width: 7px;
+	height: 12px;
+	border: solid currentColor;
+	border-width: 0 2px 2px 0;
+	transform: rotate(40deg) translateY(-30%);
+	opacity: 0.6;
+}
+@media (max-width: 480px) {
+	.vzp-wc-points {
+		padding: 10px 12px;
+		font-size: 0.85em;
+	}
+}
