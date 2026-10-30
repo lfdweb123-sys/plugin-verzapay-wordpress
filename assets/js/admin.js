@@ -2,7 +2,7 @@
 	'use strict';
 
 	$(function () {
-		// Affiche la sélection personnalisée uniquement en mode « personnalisé ».
+		// Sélection personnalisée des pays : visible uniquement en mode « personnalisé ».
 		var $mode = $('#woocommerce_verzapay_country_mode');
 		var $row = $('#woocommerce_verzapay_countries').closest('tr');
 
@@ -14,14 +14,29 @@
 			toggleCountries();
 		}
 
+		// Éditeur de textes par langue : un panneau par langue.
+		var $wrap = $('.vzp-wc-tr');
+		if ($wrap.length) {
+			var $switch = $wrap.find('.vzp-wc-locale-switch');
+			var showPanel = function () {
+				var locale = $switch.val();
+				$wrap.find('.vzp-wc-locale-panel').each(function () {
+					$(this).toggle($(this).data('locale') === locale);
+				});
+			};
+			$switch.on('change', showPanel);
+			showPanel();
+		}
+
 		// Bouton « Copier » de l’URL du webhook.
 		$('#vzp-wc-copy').on('click', function () {
 			var $btn = $(this);
 			var text = $($btn.data('target')).text().trim();
 			var label = $btn.text();
+			var copied = (window.vzpWcAdmin && window.vzpWcAdmin.copied) || 'Copied!';
 
 			function done() {
-				$btn.text('Copié !');
+				$btn.text(copied);
 				setTimeout(function () { $btn.text(label); }, 1800);
 			}
 

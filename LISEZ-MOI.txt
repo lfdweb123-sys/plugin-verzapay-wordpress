@@ -1,4 +1,4 @@
-PASSERELLE VERZAPAY POUR WOOCOMMERCE  -  Version 2.0.0
+PASSERELLE VERZAPAY POUR WOOCOMMERCE  -  Version 2.1.0
 =========================================================
 
 Ce plugin ajoute Verzapay (API v1) comme moyen de paiement dans WooCommerce.
@@ -12,6 +12,8 @@ verzapay-woocommerce/
   includes/class-gateway.php      passerelle : paiement, webhook, réglages
   includes/helpers.php            pays, numéros de téléphone, sécurité des liens
   includes/countries.php          liste des pays Verzapay (à mettre à jour ici)
+  includes/texts.php              textes visibles par les clients
+  languages/                      traductions (.pot, .po, .mo)
   assets/css, assets/js           styles et scripts (page de commande, administration)
   LISEZ-MOI.txt                   ce document
 
@@ -34,7 +36,7 @@ avant d'installer celle-ci. Vos réglages (clé, jeton) sont conservés.
 Allez dans WooCommerce > Réglages > Paiements > Verzapay.
 
 - Activer             : cochez pour proposer Verzapay à la commande.
-- Titre / Description : textes affichés au client.
+- Textes de la commande par langue : voir le chapitre 3 bis ci-dessous.
 - Description envoyée à Verzapay : "Service rendu" par défaut. C'est le texte transmis
   à l'agrégateur de paiement. Le nom de la commande et des produits n'est jamais envoyé.
 - Clé secrète         : générée dans l'espace Développeur de Verzapay (vpz_sk_...).
@@ -49,6 +51,27 @@ Allez dans WooCommerce > Réglages > Paiements > Verzapay.
 - Liste des pays de la boutique : limite les pays proposés à la commande aux pays acceptés.
 - Domaines de paiement autorisés : le client n'est redirigé que vers ces domaines
   (https obligatoire). Par défaut : verzapay.com, joonapay.com.
+
+
+3 bis. LANGUES ET TEXTES VISIBLES A LA COMMANDE
+-----------------------------------------------
+Le plugin suit automatiquement la langue du site (Réglages > Général > Langue du site,
+ou la langue choisie par Polylang / WPML).
+Traductions fournies : français, anglais (langue d'origine), espagnol, allemand, italien,
+portugais, néerlandais. Pour les autres langues, le texte s'affiche en anglais.
+
+Pour modifier ou ajouter une langue à la main :
+1. WooCommerce > Réglages > Paiements > Verzapay.
+2. Dans "Textes de la commande par langue", choisissez la langue dans la liste.
+3. Remplissez les textes voulus : titre, description, notes, libellé du téléphone, messages
+   d'erreur, bouton "Payer maintenant". Un champ vide = traduction fournie par le plugin.
+4. Enregistrez : les textes apparaissent aussitôt à la commande, dans la langue du client.
+La liste des langues contient celles du site (installées dans WordPress, Polylang, WPML)
+et les langues fournies.
+Le texte "Description envoyée à Verzapay" n'est pas traduit : c'est un texte neutre transmis
+à l'agrégateur de paiement.
+Pour ajouter une langue complète : copiez languages/verzapay-woocommerce.pot, traduisez-le
+avec Loco Translate ou Poedit, et nommez les fichiers verzapay-woocommerce-xx_XX.po / .mo.
 
 
 4. WEBHOOK (obligatoire)

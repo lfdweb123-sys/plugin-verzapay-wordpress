@@ -1,0 +1,225 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Verzapay Gateway for WooCommerce 2.1.0\n"
+"POT-Creation-Date: 2026-10-30 19:21+0000\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: verzapay-woocommerce\n"
+
+msgid "Accept Verzapay payments (card and Mobile Money) in WooCommerce."
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Enable Verzapay payment"
+msgstr ""
+
+msgid "Checkout texts by language"
+msgstr ""
+
+msgid ""
+"Texts shown to customers, in each language. Leave a field empty to use the "
+"built-in translation, which follows the language of your site."
+msgstr ""
+
+msgid "Description sent to Verzapay"
+msgstr ""
+
+msgid ""
+"Text sent to the payment aggregator. It never contains the order name or the"
+" products."
+msgstr ""
+
+msgid "Secret key"
+msgstr ""
+
+msgid ""
+"Key generated in the Developer area of Verzapay (it starts with vpz_sk_). "
+"You can also define it in wp-config.php:"
+msgstr ""
+
+msgid "Webhook secret token"
+msgstr ""
+
+msgid ""
+"Generated automatically if empty. It is part of the webhook URL: if you "
+"change it, update the URL at Verzapay too."
+msgstr ""
+
+msgid "Accepted countries"
+msgstr ""
+
+msgid "All countries supported by Verzapay"
+msgstr ""
+
+msgid "Western countries only (no African country)"
+msgstr ""
+
+msgid "Custom selection"
+msgstr ""
+
+msgid "The country list comes from the Verzapay documentation (synced on %s)."
+msgstr ""
+
+msgid "Shop country list"
+msgstr ""
+
+msgid "Limit the countries offered at checkout to the accepted countries"
+msgstr ""
+
+msgid "The billing country must match the country code of the phone number."
+msgstr ""
+
+msgid "Allowed payment domains"
+msgstr ""
+
+msgid ""
+"The customer is only redirected to these domains (https required), separated"
+" by commas."
+msgstr ""
+
+msgid "Card and Mobile Money payments for WooCommerce."
+msgstr ""
+
+msgid "API key set"
+msgstr ""
+
+msgid "API key missing"
+msgstr ""
+
+msgid "Accepted countries: %d"
+msgstr ""
+
+msgid "Countries synced on %s"
+msgstr ""
+
+msgid "Webhook URL"
+msgstr ""
+
+msgid ""
+"Copy this URL into the Developer area of Verzapay. It must start with "
+"https://"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid ""
+"Your site does not use https: Verzapay may not be able to deliver "
+"notifications."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Waiting for Verzapay payment (ID %s)."
+msgstr ""
+
+msgid "Expected charge: %1$s %2$s."
+msgstr ""
+
+msgid "Exchange rate: %s."
+msgstr ""
+
+msgid "Verzapay payment confirmed (ID %s)."
+msgstr ""
+
+msgid ""
+"Verzapay payment received but the amount, currency or reference differ: "
+"manual check required (ID %s)."
+msgstr ""
+
+msgid "Verzapay payment failed (ID %s)."
+msgstr ""
+
+msgid "Payment method title"
+msgstr ""
+
+msgid "Card payment"
+msgstr ""
+
+msgid "Payment method description"
+msgstr ""
+
+msgid "Secure online payment."
+msgstr ""
+
+msgid "Checkout note: redirection"
+msgstr ""
+
+msgid "You will be redirected to a secure payment page."
+msgstr ""
+
+msgid "Checkout note: phone format"
+msgstr ""
+
+msgid ""
+"Enter your phone number in international format, with the country code of "
+"your billing country."
+msgstr ""
+
+msgid "Phone field label"
+msgstr ""
+
+msgid "Phone (international format)"
+msgstr ""
+
+msgid "Error: country not available"
+msgstr ""
+
+msgid "This payment method is not available for the selected country."
+msgstr ""
+
+msgid "Error: phone number required"
+msgstr ""
+
+msgid "A phone number is required."
+msgstr ""
+
+msgid "Error: invalid phone number"
+msgstr ""
+
+msgid ""
+"Invalid phone number. Use the international format that matches your "
+"country, for example +44 7911 123456."
+msgstr ""
+
+msgid "Error: payment service unreachable"
+msgstr ""
+
+msgid "Unable to reach the payment service. Please try again in a moment."
+msgstr ""
+
+msgid "Error: exchange rate unavailable"
+msgstr ""
+
+msgid "The exchange rate is temporarily unavailable. Please try again later."
+msgstr ""
+
+msgid "Error: payment refused"
+msgstr ""
+
+msgid "The payment was refused. Check your phone number and the order amount."
+msgstr ""
+
+msgid "Error: payment unavailable"
+msgstr ""
+
+msgid "Payment is temporarily unavailable. Please try again later."
+msgstr ""
+
+msgid "Button: pay now (My account)"
+msgstr ""
+
+msgid "Pay now"
+msgstr ""
+
+msgid "Verzapay Gateway requires WooCommerce to be active."
+msgstr ""
+
+msgid "Copied!"
+msgstr ""

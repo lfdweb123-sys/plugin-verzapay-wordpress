@@ -133,3 +133,45 @@
 		white-space: normal;
 	}
 }
+
+/* Éditeur de textes par langue */
+.vzp-wc-tr {
+	max-width: 640px;
+}
+.vzp-wc-tr .description {
+	margin: 0 0 12px;
+}
+.vzp-wc-locale-switch {
+	min-width: 220px;
+	max-width: 100%;
+}
+.vzp-wc-locale-panel {
+	margin-top: 14px;
+	padding: 14px 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 10px;
+	background: #f6f7f7;
+}
+.vzp-wc-field {
+	margin: 0 0 12px;
+}
+.vzp-wc-field:last-child {
+	margin-bottom: 0;
+}
+.vzp-wc-field label {
+	display: block;
+}
+.vzp-wc-field label > span {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+.vzp-wc-field textarea {
+	width: 100%;
+	max-width: 100%;
+}
+@media (max-width: 782px) {
+	.vzp-wc-locale-panel {
+		padding: 12px;
+	}
+}

@@ -1,18 +1,19 @@
 <?php
 /**
- * Plugin Name:       Passerelle Verzapay pour WooCommerce
- * Description:       Acceptez les paiements Verzapay (API v1) dans WooCommerce : carte bancaire et Mobile Money, webhook sécurisé, pays synchronisés avec la documentation Verzapay.
- * Version:           2.0.0
+ * Plugin Name:       Verzapay Gateway for WooCommerce
+ * Description:       Accept Verzapay payments (API v1) in WooCommerce: card and Mobile Money, secure webhook, countries synced with the Verzapay documentation, texts translated to the site language.
+ * Version:           2.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
  * WC requires at least: 7.0
  * Text Domain:       verzapay-woocommerce
+ * Domain Path:       /languages
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'VZP_WC_VERSION', '2.0.0' );
+define( 'VZP_WC_VERSION', '2.1.0' );
 define( 'VZP_WC_FILE', __FILE__ );
 define( 'VZP_WC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'VZP_WC_URL', plugin_dir_url( __FILE__ ) );
@@ -20,6 +21,12 @@ define( 'VZP_WC_URL', plugin_dir_url( __FILE__ ) );
 define( 'VZP_WC_SYNC', '28/10/2026 14:52:46' );
 
 require_once VZP_WC_DIR . 'includes/helpers.php';
+require_once VZP_WC_DIR . 'includes/texts.php';
+
+/* Traductions : suivent la langue du site (dossier /languages). */
+add_action( 'plugins_loaded', function () {
+	load_plugin_textdomain( 'verzapay-woocommerce', false, dirname( plugin_basename( VZP_WC_FILE ) ) . '/languages' );
+}, 5 );
 
 /* Compatibilité HPOS (tables de commandes WooCommerce). */
 add_action( 'before_woocommerce_init', function () {
@@ -33,7 +40,7 @@ add_action( 'plugins_loaded', 'vzp_wc_boot', 11 );
 function vzp_wc_boot() {
 	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 		add_action( 'admin_notices', function () {
-			echo '<div class="notice notice-error"><p><strong>Passerelle Verzapay</strong> nécessite WooCommerce actif.</p></div>';
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Verzapay Gateway requires WooCommerce to be active.', 'verzapay-woocommerce' ) . '</p></div>';
 		} );
 		return;
 	}
@@ -75,7 +82,7 @@ function vzp_wc_filter_store_countries( $countries ) {
 function vzp_wc_filter_billing_fields( $fields ) {
 	if ( vzp_wc_is_enabled() && isset( $fields['billing_phone'] ) ) {
 		$fields['billing_phone']['required']    = true;
-		$fields['billing_phone']['label']       = 'Téléphone (format international)';
+		$fields['billing_phone']['label']       = vzp_wc_text( 'phone_label' );
 		$fields['billing_phone']['placeholder'] = '+33 6 12 34 56 78';
 		$fields['billing_phone']['type']        = 'tel';
 	}
@@ -91,7 +98,7 @@ function vzp_wc_resume_payment_action( $actions, $order ) {
 		if ( vzp_wc_is_safe_url( $url ) ) {
 			$actions['verzapay_pay'] = array(
 				'url'  => $url,
-				'name' => 'Payer maintenant',
+				'name' => vzp_wc_text( 'btn_pay' ),
 			);
 		}
 	}
@@ -124,4 +131,7 @@ function vzp_wc_enqueue_admin_assets() {
 	}
 	wp_enqueue_style( 'vzp-wc-admin', VZP_WC_URL . 'assets/css/admin.css', array(), VZP_WC_VERSION );
 	wp_enqueue_script( 'vzp-wc-admin', VZP_WC_URL . 'assets/js/admin.js', array( 'jquery' ), VZP_WC_VERSION, true );
+	wp_localize_script( 'vzp-wc-admin', 'vzpWcAdmin', array(
+		'copied' => __( 'Copied!', 'verzapay-woocommerce' ),
+	) );
 }

@@ -13,18 +13,28 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		$this->icon               = '';
 		$this->has_fields         = true;
 		$this->method_title       = 'Verzapay';
-		$this->method_description = 'Paiement par carte bancaire ou Mobile Money via Verzapay.';
+		$this->method_description = __( 'Accept Verzapay payments (card and Mobile Money) in WooCommerce.', 'verzapay-woocommerce' );
 		$this->supports           = array( 'products' );
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title       = $this->get_option( 'title' );
-		$this->description = $this->get_option( 'description' );
-		$this->enabled     = $this->get_option( 'enabled' );
+		$this->enabled = $this->get_option( 'enabled' );
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_api_' . $this->id, array( $this, 'handle_webhook' ) );
+	}
+
+	/* ------------------------------------------------------------------
+	 * Titre et description : suivent la langue courante
+	 * --------------------------------------------------------------- */
+
+	public function get_title() {
+		return apply_filters( 'woocommerce_gateway_title', vzp_wc_text( 'title' ), $this->id );
+	}
+
+	public function get_description() {
+		return apply_filters( 'woocommerce_gateway_description', vzp_wc_text( 'description' ), $this->id );
 	}
 
 	/* ------------------------------------------------------------------
@@ -42,70 +52,138 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 
 		$this->form_fields = array(
 			'enabled'               => array(
-				'title'   => 'Activer',
+				'title'   => __( 'Enable', 'verzapay-woocommerce' ),
 				'type'    => 'checkbox',
-				'label'   => 'Activer le paiement Verzapay',
+				'label'   => __( 'Enable Verzapay payment', 'verzapay-woocommerce' ),
 				'default' => 'no',
 			),
-			'title'                 => array(
-				'title'   => 'Titre affiché',
-				'type'    => 'text',
-				'default' => 'Carte bancaire',
-			),
-			'description'           => array(
-				'title'   => 'Description affichée',
-				'type'    => 'textarea',
-				'default' => 'Paiement sécurisé par carte bancaire.',
+			'translations'          => array(
+				'title'       => __( 'Checkout texts by language', 'verzapay-woocommerce' ),
+				'type'        => 'vzp_translations',
+				'description' => __( 'Texts shown to customers, in each language. Leave a field empty to use the built-in translation, which follows the language of your site.', 'verzapay-woocommerce' ),
 			),
 			'payment_description'   => array(
-				'title'       => 'Description envoyée à Verzapay',
+				'title'       => __( 'Description sent to Verzapay', 'verzapay-woocommerce' ),
 				'type'        => 'text',
 				'default'     => 'Service rendu',
-				'description' => 'Texte transmis à l’agrégateur de paiement. Il ne contient jamais le nom de la commande ni des produits.',
+				'description' => __( 'Text sent to the payment aggregator. It never contains the order name or the products.', 'verzapay-woocommerce' ),
 			),
 			'secret_key'            => array(
-				'title'       => 'Clé secrète',
+				'title'       => __( 'Secret key', 'verzapay-woocommerce' ),
 				'type'        => 'password',
-				'description' => 'Clé générée dans l’espace Développeur de Verzapay (elle commence par vpz_sk_). Vous pouvez aussi la définir dans wp-config.php avec define( \'VERZAPAY_SECRET_KEY\', \'vpz_sk_…\' );',
+				'description' => __( 'Key generated in the Developer area of Verzapay (it starts with vpz_sk_). You can also define it in wp-config.php:', 'verzapay-woocommerce' ) . " define( 'VERZAPAY_SECRET_KEY', 'vpz_sk_…' );",
 			),
 			'webhook_token'         => array(
-				'title'       => 'Jeton secret du webhook',
+				'title'       => __( 'Webhook secret token', 'verzapay-woocommerce' ),
 				'type'        => 'text',
-				'description' => 'Généré automatiquement s’il est vide. Il fait partie de l’URL du webhook : si vous le changez, mettez aussi à jour l’URL chez Verzapay.',
+				'description' => __( 'Generated automatically if empty. It is part of the webhook URL: if you change it, update the URL at Verzapay too.', 'verzapay-woocommerce' ),
 			),
 			'country_mode'          => array(
-				'title'       => 'Pays acceptés',
+				'title'       => __( 'Accepted countries', 'verzapay-woocommerce' ),
 				'type'        => 'select',
 				'class'       => 'wc-enhanced-select',
 				'default'     => 'all',
 				'options'     => array(
-					'all'     => 'Tous les pays pris en charge par Verzapay',
-					'western' => 'Pays occidentaux uniquement (aucun pays africain)',
-					'custom'  => 'Sélection personnalisée',
+					'all'     => __( 'All countries supported by Verzapay', 'verzapay-woocommerce' ),
+					'western' => __( 'Western countries only (no African country)', 'verzapay-woocommerce' ),
+					'custom'  => __( 'Custom selection', 'verzapay-woocommerce' ),
 				),
-				'description' => 'La liste des pays vient de la documentation Verzapay (synchronisée le ' . VZP_WC_SYNC . ').',
+				/* translators: %s: date of the last synchronization with the Verzapay documentation. */
+				'description' => sprintf( __( 'The country list comes from the Verzapay documentation (synced on %s).', 'verzapay-woocommerce' ), VZP_WC_SYNC ),
 			),
 			'countries'             => array(
-				'title'   => 'Sélection personnalisée',
+				'title'   => __( 'Custom selection', 'verzapay-woocommerce' ),
 				'type'    => 'multiselect',
 				'class'   => 'wc-enhanced-select',
 				'options' => $options,
 				'default' => vzp_wc_western_countries(),
 			),
 			'limit_store_countries' => array(
-				'title'       => 'Liste des pays de la boutique',
+				'title'       => __( 'Shop country list', 'verzapay-woocommerce' ),
 				'type'        => 'checkbox',
-				'label'       => 'Limiter les pays proposés à la commande aux pays acceptés',
+				'label'       => __( 'Limit the countries offered at checkout to the accepted countries', 'verzapay-woocommerce' ),
 				'default'     => 'yes',
-				'description' => 'Le pays de facturation doit correspondre à l’indicatif du numéro de téléphone.',
+				'description' => __( 'The billing country must match the country code of the phone number.', 'verzapay-woocommerce' ),
 			),
 			'allowed_hosts'         => array(
-				'title'       => 'Domaines de paiement autorisés',
+				'title'       => __( 'Allowed payment domains', 'verzapay-woocommerce' ),
 				'type'        => 'text',
 				'default'     => 'verzapay.com, joonapay.com',
-				'description' => 'Le client n’est redirigé que vers ces domaines (https obligatoire), séparés par des virgules.',
+				'description' => __( 'The customer is only redirected to these domains (https required), separated by commas.', 'verzapay-woocommerce' ),
 			),
 		);
+	}
+
+	/**
+	 * Champ personnalisé : éditeur de textes par langue.
+	 */
+	public function generate_vzp_translations_html( $key, $data ) {
+		$field_key = $this->get_field_key( $key );
+		$values    = $this->get_option( $key, array() );
+		$values    = is_array( $values ) ? $values : array();
+		$texts     = vzp_wc_default_texts();
+		$locales   = vzp_wc_locales();
+		$current   = determine_locale();
+
+		ob_start();
+		?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label for="vzp-wc-locale"><?php echo wp_kses_post( $data['title'] ); ?></label>
+			</th>
+			<td class="forminp">
+				<div class="vzp-wc-tr">
+					<p class="description"><?php echo wp_kses_post( $data['description'] ); ?></p>
+					<select id="vzp-wc-locale" class="vzp-wc-locale-switch">
+						<?php foreach ( $locales as $locale ) : ?>
+							<option value="<?php echo esc_attr( $locale ); ?>" <?php selected( $locale, $current ); ?>>
+								<?php echo esc_html( vzp_wc_locale_name( $locale ) ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+
+					<?php foreach ( $locales as $locale ) : ?>
+						<div class="vzp-wc-locale-panel" data-locale="<?php echo esc_attr( $locale ); ?>" <?php echo $locale === $current ? '' : 'style="display:none"'; ?>>
+							<?php foreach ( $texts as $id => $item ) : ?>
+								<?php $value = isset( $values[ $locale ][ $id ] ) ? $values[ $locale ][ $id ] : ''; ?>
+								<p class="vzp-wc-field">
+									<label>
+										<span><?php echo esc_html( $item['label'] ); ?></span>
+										<textarea rows="2" name="<?php echo esc_attr( $field_key . '[' . $locale . '][' . $id . ']' ); ?>" placeholder="<?php echo esc_attr( $item['text'] ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+									</label>
+								</p>
+							<?php endforeach; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</td>
+		</tr>
+		<?php
+		return ob_get_clean();
+	}
+
+	public function validate_vzp_translations_field( $key, $value ) {
+		$texts = vzp_wc_default_texts();
+		$clean = array();
+
+		if ( ! is_array( $value ) ) {
+			return $clean;
+		}
+		foreach ( $value as $locale => $items ) {
+			if ( ! preg_match( '/^[a-z]{2,3}(_[A-Za-z0-9]+)*$/', (string) $locale ) || ! is_array( $items ) ) {
+				continue;
+			}
+			foreach ( $items as $id => $text ) {
+				if ( ! isset( $texts[ $id ] ) ) {
+					continue;
+				}
+				$text = trim( wp_kses_post( wp_unslash( (string) $text ) ) );
+				if ( '' !== $text ) {
+					$clean[ $locale ][ $id ] = $text;
+				}
+			}
+		}
+		return $clean;
 	}
 
 	public function admin_options() {
@@ -117,29 +195,31 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 			<div class="vzp-wc-hero">
 				<div class="vzp-wc-hero-text">
 					<h2>Verzapay</h2>
-					<p>Paiement par carte bancaire et Mobile Money pour WooCommerce.</p>
+					<p><?php esc_html_e( 'Card and Mobile Money payments for WooCommerce.', 'verzapay-woocommerce' ); ?></p>
 				</div>
 				<ul class="vzp-wc-badges">
-					<li class="<?php echo $key_ok ? 'is-ok' : 'is-warn'; ?>"><?php echo $key_ok ? 'Clé API renseignée' : 'Clé API manquante'; ?></li>
-					<li class="is-info"><?php echo esc_html( $count ); ?> pays acceptés</li>
-					<li class="is-info">Pays synchronisés le <?php echo esc_html( VZP_WC_SYNC ); ?></li>
+					<li class="<?php echo $key_ok ? 'is-ok' : 'is-warn'; ?>"><?php echo $key_ok ? esc_html__( 'API key set', 'verzapay-woocommerce' ) : esc_html__( 'API key missing', 'verzapay-woocommerce' ); ?></li>
+					<?php /* translators: %d: number of accepted countries. */ ?>
+					<li class="is-info"><?php echo esc_html( sprintf( __( 'Accepted countries: %d', 'verzapay-woocommerce' ), $count ) ); ?></li>
+					<?php /* translators: %s: date of the last synchronization. */ ?>
+					<li class="is-info"><?php echo esc_html( sprintf( __( 'Countries synced on %s', 'verzapay-woocommerce' ), VZP_WC_SYNC ) ); ?></li>
 				</ul>
 			</div>
 
 			<div class="vzp-wc-card">
-				<h3>URL du webhook</h3>
-				<p>À copier dans l’espace Développeur de Verzapay. Elle doit commencer par <code>https://</code>.</p>
+				<h3><?php esc_html_e( 'Webhook URL', 'verzapay-woocommerce' ); ?></h3>
+				<p><?php esc_html_e( 'Copy this URL into the Developer area of Verzapay. It must start with https://', 'verzapay-woocommerce' ); ?></p>
 				<div class="vzp-wc-copy">
 					<code id="vzp-wc-webhook"><?php echo esc_html( $url ); ?></code>
-					<button type="button" class="button" id="vzp-wc-copy" data-target="#vzp-wc-webhook">Copier</button>
+					<button type="button" class="button" id="vzp-wc-copy" data-target="#vzp-wc-webhook"><?php esc_html_e( 'Copy', 'verzapay-woocommerce' ); ?></button>
 				</div>
 				<?php if ( 0 !== strpos( $url, 'https://' ) ) : ?>
-					<p class="vzp-wc-alert">Votre site n’utilise pas https : Verzapay risque de ne pas livrer les notifications.</p>
+					<p class="vzp-wc-alert"><?php esc_html_e( 'Your site does not use https: Verzapay may not be able to deliver notifications.', 'verzapay-woocommerce' ); ?></p>
 				<?php endif; ?>
 			</div>
 
 			<div class="vzp-wc-card">
-				<h3>Réglages</h3>
+				<h3><?php esc_html_e( 'Settings', 'verzapay-woocommerce' ); ?></h3>
 				<table class="form-table">
 					<?php $this->generate_settings_html(); ?>
 				</table>
@@ -192,12 +272,13 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 
 	public function payment_fields() {
 		echo '<div class="vzp-wc-box">';
-		if ( $this->description ) {
-			echo '<div class="vzp-wc-desc">' . wp_kses_post( wpautop( wptexturize( $this->description ) ) ) . '</div>';
+		$description = vzp_wc_text( 'description' );
+		if ( '' !== $description ) {
+			echo '<div class="vzp-wc-desc">' . wp_kses_post( wpautop( wptexturize( $description ) ) ) . '</div>';
 		}
 		echo '<ul class="vzp-wc-points">';
-		echo '<li>Vous serez redirigé vers une page de paiement sécurisée.</li>';
-		echo '<li>Indiquez votre téléphone au format international, avec l’indicatif de votre pays de facturation.</li>';
+		echo '<li>' . wp_kses_post( vzp_wc_text( 'point_redirect' ) ) . '</li>';
+		echo '<li>' . wp_kses_post( vzp_wc_text( 'point_phone' ) ) . '</li>';
 		echo '</ul></div>';
 	}
 
@@ -218,15 +299,15 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 
 	private function check_country_and_phone( $country, $phone ) {
 		if ( ! in_array( $country, vzp_wc_allowed_countries(), true ) ) {
-			wc_add_notice( 'Ce moyen de paiement n’est pas disponible pour le pays sélectionné.', 'error' );
+			wc_add_notice( vzp_wc_text( 'err_country' ), 'error' );
 			return false;
 		}
 		if ( '' === trim( (string) $phone ) ) {
-			wc_add_notice( 'Le numéro de téléphone est obligatoire.', 'error' );
+			wc_add_notice( vzp_wc_text( 'err_phone_required' ), 'error' );
 			return false;
 		}
 		if ( ! vzp_wc_normalize_phone( $phone, $country ) ) {
-			wc_add_notice( 'Numéro de téléphone invalide. Utilisez le format international correspondant à votre pays, par exemple +33 6 12 34 56 78.', 'error' );
+			wc_add_notice( vzp_wc_text( 'err_phone_invalid' ), 'error' );
 			return false;
 		}
 		return true;
@@ -298,8 +379,8 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		$result = $this->api_request( 'POST', '/payments', $payload );
 
 		if ( is_wp_error( $result ) ) {
-			$this->log( 'Erreur réseau : ' . $result->get_error_message() );
-			wc_add_notice( 'Impossible de contacter le service de paiement. Veuillez réessayer dans un instant.', 'error' );
+			$this->log( 'Network error: ' . $result->get_error_message() );
+			wc_add_notice( vzp_wc_text( 'err_network' ), 'error' );
 			return array( 'result' => 'failure' );
 		}
 
@@ -307,13 +388,13 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		$data = $result['data'];
 
 		if ( $code < 200 || $code >= 300 || empty( $data['id'] ) ) {
-			$this->log( 'Création du paiement refusée (HTTP ' . $code . ') pour la commande #' . $order->get_id() . ' : ' . wp_json_encode( $data ) );
+			$this->log( 'Payment creation refused (HTTP ' . $code . ') for order #' . $order->get_id() . ': ' . wp_json_encode( $data ) );
 			if ( 503 === $code ) {
-				wc_add_notice( 'Le taux de change est momentanément indisponible. Veuillez réessayer plus tard.', 'error' );
+				wc_add_notice( vzp_wc_text( 'err_rate' ), 'error' );
 			} elseif ( 400 === $code ) {
-				wc_add_notice( 'Le paiement a été refusé. Vérifiez votre numéro de téléphone et le montant de la commande.', 'error' );
+				wc_add_notice( vzp_wc_text( 'err_refused' ), 'error' );
 			} else {
-				wc_add_notice( 'Le paiement est momentanément indisponible. Veuillez réessayer plus tard.', 'error' );
+				wc_add_notice( vzp_wc_text( 'err_unavailable' ), 'error' );
 			}
 			return array( 'result' => 'failure' );
 		}
@@ -333,8 +414,8 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		}
 
 		if ( '' === $url ) {
-			$this->log( 'URL de paiement refusée (domaine non autorisé ou non https) : ' . wp_json_encode( $candidates ) );
-			wc_add_notice( 'Le paiement est momentanément indisponible. Veuillez réessayer plus tard.', 'error' );
+			$this->log( 'Payment URL refused (domain not allowed or not https): ' . wp_json_encode( $candidates ) );
+			wc_add_notice( vzp_wc_text( 'err_unavailable' ), 'error' );
 			return array( 'result' => 'failure' );
 		}
 
@@ -343,13 +424,15 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		$order->update_meta_data( '_verzapay_reference', $reference );
 		$order->update_meta_data( '_verzapay_checkout_url', $url );
 
-		$note = 'En attente du paiement Verzapay (ID ' . $payment_id . ').';
+		/* translators: %s: Verzapay payment ID. */
+		$note = sprintf( __( 'Waiting for Verzapay payment (ID %s).', 'verzapay-woocommerce' ), $payment_id );
 		if ( isset( $data['charged_amount'], $data['charged_currency'] ) ) {
-			$note .= ' Débit prévu : ' . wc_clean( $data['charged_amount'] ) . ' ' . wc_clean( $data['charged_currency'] );
+			/* translators: 1: charged amount, 2: charged currency. */
+			$note .= ' ' . sprintf( __( 'Expected charge: %1$s %2$s.', 'verzapay-woocommerce' ), wc_clean( $data['charged_amount'] ), wc_clean( $data['charged_currency'] ) );
 			if ( isset( $data['exchange_rate'] ) ) {
-				$note .= ' (taux ' . wc_clean( $data['exchange_rate'] ) . ')';
+				/* translators: %s: exchange rate. */
+				$note .= ' ' . sprintf( __( 'Exchange rate: %s.', 'verzapay-woocommerce' ), wc_clean( $data['exchange_rate'] ) );
 			}
-			$note .= '.';
 		}
 		$order->update_status( 'on-hold', $note );
 		$order->save();
@@ -389,7 +472,7 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		) );
 
 		if ( empty( $orders ) ) {
-			$this->log( 'Webhook ignoré : paiement inconnu ' . $payment_id );
+			$this->log( 'Webhook ignored: unknown payment ' . $payment_id );
 			wp_send_json( array( 'received' => true ), 200 );
 		}
 
@@ -403,7 +486,7 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 		// La notification seule ne prouve rien : on interroge l’API.
 		$result = $this->api_request( 'GET', '/payments/' . rawurlencode( $payment_id ) );
 		if ( is_wp_error( $result ) || 200 !== $result['code'] || empty( $result['data']['status'] ) ) {
-			$this->log( 'Vérification impossible pour ' . $payment_id );
+			$this->log( 'Verification impossible for ' . $payment_id );
 			wp_send_json( array( 'error' => 'verification_failed' ), 503 );
 		}
 
@@ -416,13 +499,16 @@ class VZP_WC_Gateway extends WC_Payment_Gateway {
 
 			if ( $same_ref && $same_amount && $same_currency ) {
 				$order->payment_complete( $payment_id );
-				$order->add_order_note( 'Paiement Verzapay confirmé (ID ' . $payment_id . ').' );
+				/* translators: %s: Verzapay payment ID. */
+				$order->add_order_note( sprintf( __( 'Verzapay payment confirmed (ID %s).', 'verzapay-woocommerce' ), $payment_id ) );
 			} else {
-				$order->add_order_note( 'Paiement Verzapay reçu mais montant, devise ou référence différents : vérification manuelle nécessaire (ID ' . $payment_id . ').' );
-				$this->log( 'Incohérence pour la commande #' . $order->get_id() );
+				/* translators: %s: Verzapay payment ID. */
+				$order->add_order_note( sprintf( __( 'Verzapay payment received but the amount, currency or reference differ: manual check required (ID %s).', 'verzapay-woocommerce' ), $payment_id ) );
+				$this->log( 'Mismatch for order #' . $order->get_id() );
 			}
 		} elseif ( 'failed' === $remote['status'] ) {
-			$order->update_status( 'failed', 'Paiement Verzapay échoué (ID ' . $payment_id . ').' );
+			/* translators: %s: Verzapay payment ID. */
+			$order->update_status( 'failed', sprintf( __( 'Verzapay payment failed (ID %s).', 'verzapay-woocommerce' ), $payment_id ) );
 		}
 
 		wp_send_json( array( 'received' => true ), 200 );
